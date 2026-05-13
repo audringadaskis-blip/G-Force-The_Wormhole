@@ -1,6 +1,7 @@
 #include <SFML/Graphics.hpp>
 #include <cmath>
 
+// sienos (su grindimis, floor levels), priesai ir judejimas, +collision
 int main() {
     sf::RenderWindow window(sf::VideoMode({800, 600}, 32), "The Wormhole");
     sf::Clock clock;

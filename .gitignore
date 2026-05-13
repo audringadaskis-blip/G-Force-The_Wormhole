@@ -1,0 +1,13 @@
+# other files
+*.txt
+
+# Build artifacts
+build/
+bin/
+*.exe
+*.o
+*.out
+
+# IDE settings (optional)
+.vscode/
+*.user
