@@ -1,5 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include "Constants.h"
+#include "Player.h"
 
 // Draw tunnel walls
 void drawTunnel(sf::RenderWindow& window) {
@@ -48,20 +49,14 @@ void drawRungs(sf::RenderWindow& window, const sf::View& view, bool inTunnel) {
 // Update camera view (smooth follow)
 void updateCamera(sf::View& view, const sf::Vector2f& playerPos, 
                   bool inTunnel, bool isFalling, float dt) {
-    float targetViewY;
-    if (inTunnel) {
-        targetViewY = playerPos.y - 150.f;
-    } else if (isFalling) {
-        float fallProgress = (playerPos.y - TERRAIN_Y) / (TUNNEL_ENTRY_Y - TERRAIN_Y);
-        if (fallProgress > 1.f) fallProgress = 1.f;
-        targetViewY = 300.f + (playerPos.y - 150.f - 300.f) * fallProgress;
-    } else {
-        targetViewY = 300.f;
-    }
+    float targetViewY = 300.f;
     
-    float groundY = 300.f;
+    if (playerPos.y > TUNNEL_ENTRY_Y) {
+        targetViewY = playerPos.y - 50.f;
+    }
+
     float currentViewY = view.getCenter().y;
-    float newViewY = currentViewY + (targetViewY - currentViewY) * 10.f * dt;
+    float newViewY = currentViewY + (targetViewY - currentViewY) * 5.0f * dt;
     view.setCenter({400.f, newViewY});
 }
 
