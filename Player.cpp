@@ -8,14 +8,16 @@ Player::Player() : textureLoaded(false) {
                sf::Color::Green);
     
     if (!texture.loadFromImage(img)) {
-        std::cerr << "Error: Failed to create texture from image\n";
+        std::cerr << "CRITICAL: Failed to create fallback texture!\n";
+        return;
     }
     
     sprite = std::make_unique<sf::Sprite>(texture);
     sprite->setPosition({PLAYER_START_X, PLAYER_START_Y + SPRITE_OFFSET_Y});
     
     if (loadTexture(PLAYER_TEXTURE_PATH)) {
-        sprite->setTexture(texture);
+        sprite->setTexture(texture);} else {
+        std::cout << "Info: Using fallback green square\n";
     }
 }
 
@@ -24,6 +26,10 @@ bool Player::loadTexture(const std::string& path) {
     if (tempTexture.loadFromFile(path)) {
         texture = tempTexture;
         sprite->setTexture(texture);
+        
+        sprite->setTextureRect(sf::IntRect({0, 0}, 
+            static_cast<sf::Vector2i>(texture.getSize())));
+        
         textureLoaded = true;
         return true;
     }
