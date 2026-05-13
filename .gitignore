@@ -1,5 +1,5 @@
 # other files
-*.txt
+#
 
 # Build artifacts
 build/
