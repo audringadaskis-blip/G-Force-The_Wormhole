@@ -98,36 +98,16 @@ int main() {
         }
 
         // Smooth continuous camera follow
-        float groundY = 300.f;
-        float tunnelY = pos.y - 150.f;
-        float tunnelTransition = 0.f;
+        float targetViewY = 300.f;
 
-        if (inTunnel) {
-            tunnelTransition += 3.f * dt;   // speed of entering tunnel
-            if (tunnelTransition > 1.f) tunnelTransition = 1.f;
-        } else {
-            tunnelTransition -= 3.f * dt;   // fade back to ground if needed
-            if (tunnelTransition < 0.f) tunnelTransition = 0.f;
+        // pradėti sekti vos krentant
+        if (pos.y > tunnelEntryY) {
+            targetViewY = pos.y - 50.f;
         }
 
-        float targetViewY = groundY + (tunnelY - groundY) * tunnelTransition;
-
-        /*if (!inTunnel) {
-            targetViewY = 300.f;
-        } else {
-            //targetViewY = 300.f;
-            targetViewY = pos.y - 150.f;
-            //float fallProgress = (pos.y - terrainY) / (tunnelEntryY - terrainY);
-            //if (fallProgress > 1.0f) fallProgress = 1.0f;
-            //targetViewY = 300 + (pos.y - 150 - 300) * fallProgress;
-        } /*else {
-            //targetViewY = 300;
-            targetViewY = 300.f;
-        }*/
-        //float targetViewY = (inTunnel) ? pos.y - 150.f : 300.f;
 
         float currentViewY = view.getCenter().y;
-        float newViewY = currentViewY + (targetViewY - currentViewY) * 8.0f * dt;
+        float newViewY = currentViewY + (targetViewY - currentViewY) * 5.0f * dt;
         view.setCenter({400.f, newViewY});
 
         playerPos = pos;
