@@ -28,17 +28,17 @@ float updateVerticalPosition(float playerY, bool& isFalling, bool& inTunnel,
 }
 
 // Constrain player horizontally inside tunnel
-void constrainToTunnel(float playerX, bool inTunnel) {
+float constrainToTunnel(float playerX, bool inTunnel) {
     if (inTunnel) {
         if (playerX < TUNNEL_WALL_WIDTH) playerX = TUNNEL_WALL_WIDTH;
         if (playerX > WINDOW_WIDTH - TUNNEL_WALL_WIDTH - PLAYER_SIZE) 
             playerX = WINDOW_WIDTH - TUNNEL_WALL_WIDTH - PLAYER_SIZE;
     }
+    return playerX;
 }
 
 // Reset player to start position
-void resetPlayer(bool& isFalling, bool& inTunnel, sf::View& view) {
+void resetPlayer(bool& isFalling, bool& inTunnel) {
     isFalling = false;
     inTunnel = false;
-    view.setCenter({400.f, 300.f});
 }

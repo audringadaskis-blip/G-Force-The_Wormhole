@@ -59,7 +59,13 @@ void updateCamera(sf::View& view, const sf::Vector2f& playerPos,
         targetViewY = 300.f;
     }
     
+    float groundY = 300.f;
     float currentViewY = view.getCenter().y;
     float newViewY = currentViewY + (targetViewY - currentViewY) * 10.f * dt;
     view.setCenter({400.f, newViewY});
+}
+
+// Reset camera to default position
+void resetCamera(sf::View& view) {
+    view.setCenter({400.f, 300.f});
 }

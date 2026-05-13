@@ -1,4 +1,5 @@
 #include <SFML/Graphics.hpp>
+#include <optional>
 #include "Constants.h"
 #include "Player.h"
 
@@ -11,8 +12,8 @@ void updateCamera(sf::View& view, const sf::Vector2f& playerPos,
 bool isOverHole(float playerX);
 float updateVerticalPosition(float playerY, bool& isFalling, bool& inTunnel, 
                            bool overHole, float dt);
-void constrainToTunnel(float playerX, bool inTunnel);
-void resetPlayer(bool& isFalling, bool& inTunnel, sf::View& view);
+float constrainToTunnel(float playerX, bool inTunnel);
+void resetPlayer(bool& isFalling, bool& inTunnel);
 
 int main() {
     sf::RenderWindow window(sf::VideoMode({WINDOW_WIDTH, WINDOW_HEIGHT}, 32), "The Wormhole");
@@ -31,7 +32,7 @@ int main() {
             if (event->is<sf::Event::Closed>()) window.close();
             if (auto* keyEvent = event->getIf<sf::Event::KeyPressed>()) {
                 if (keyEvent->code == sf::Keyboard::Key::R) {
-                    resetPlayer(isFalling, inTunnel, view);
+                    resetPlayer(isFalling, inTunnel);
                     player.setPosition(PLAYER_START_X, PLAYER_START_Y);
                 }
             }
@@ -44,12 +45,12 @@ int main() {
         bool moveLeft = sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A);
         bool moveRight = sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D);
         player.update(dt, moveLeft, moveRight);
-        pos = player.getPosition(); // Refresh after movement
+        pos = player.getPosition();
 
         // Game logic
         bool overHole = isOverHole(pos.x);
-        updateVerticalPosition(pos.y, isFalling, inTunnel, overHole, dt);
-        constrainToTunnel(pos.x, inTunnel);
+        pos.y = updateVerticalPosition(pos.y, isFalling, inTunnel, overHole, dt);
+        pos.x = constrainToTunnel(pos.x, inTunnel);
         player.setPosition(pos.x, pos.y);
 
         // Camera
