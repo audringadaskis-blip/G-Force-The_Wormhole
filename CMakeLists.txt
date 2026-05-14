@@ -14,7 +14,7 @@ add_executable(Wormhole
     Player.cpp
     design.cpp
     mechanics.cpp
-    enemies.cpp
+    Enemy.cpp
 )
 
 # Link SFML libraries

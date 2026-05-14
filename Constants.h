@@ -11,6 +11,17 @@ constexpr float PLAYER_START_X = 100.f;
 constexpr float PLAYER_START_Y = 220.f;
 constexpr float SPRITE_OFFSET_Y = -50.f;
 constexpr const char* PLAYER_TEXTURE_PATH = "assets/character.png";
+
+// Enemies/Worms
+constexpr float WORM_WIDTH = 100.f;
+constexpr float WORM_HEIGHT = 40.f;
+constexpr float WORM_SPEED = 80.f;
+constexpr float WORM_SPAWN_DISTANCE = 250.f;
+constexpr float WORM_SPAWN_CHANCE = 0.5f;
+constexpr int WORM_COLOR_R = 180;
+constexpr int WORM_COLOR_G = 50;
+constexpr int WORM_COLOR_B = 50;
+
 // Physics
 constexpr float FALL_SPEED = 150.f;
 constexpr float MOVE_SPEED = 200.f;

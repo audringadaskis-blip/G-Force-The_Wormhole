@@ -4,6 +4,8 @@
 #include <memory>
 #include "Constants.h"
 
+class Enemy;
+
 class Player {
 public:
     sf::Texture texture;
@@ -19,4 +21,5 @@ public:
     sf::Vector2f getViewOffset() const;
     void draw(sf::RenderWindow& window);
     void reset();
+    bool checkCollision(const sf::FloatRect& enemyBounds) const;
 };

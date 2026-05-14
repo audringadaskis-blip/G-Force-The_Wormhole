@@ -1,6 +1,9 @@
 #include <SFML/Graphics.hpp>
+#include <vector>
+#include <memory>
 #include "Constants.h"
 #include "Player.h"
+#include "Enemy.h" 
 
 // Draw tunnel walls
 void drawTunnel(sf::RenderWindow& window) {
@@ -63,4 +66,14 @@ void updateCamera(sf::View& view, const sf::Vector2f& playerPos,
 // Reset camera to default position
 void resetCamera(sf::View& view) {
     view.setCenter({400.f, 300.f});
+}
+
+void drawEnemies(sf::RenderWindow& window, std::vector<std::unique_ptr<Enemy>>& enemies) {    
+    int activeCount = 0;
+    for (auto& enemy : enemies) {
+        if (enemy->isActive) {
+            enemy->draw(window);
+            activeCount++;
+        }
+    }
 }

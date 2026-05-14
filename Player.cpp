@@ -64,3 +64,11 @@ void Player::draw(sf::RenderWindow& window) {
 void Player::reset() {
     sprite->setPosition({PLAYER_START_X, PLAYER_START_Y + SPRITE_OFFSET_Y});
 }
+
+bool Player::checkCollision(const sf::FloatRect& enemyBounds) const {
+    sf::FloatRect playerBounds = sprite->getGlobalBounds();
+    return playerBounds.position.x < enemyBounds.position.x + enemyBounds.size.x &&
+           playerBounds.position.x + playerBounds.size.x > enemyBounds.position.x &&
+           playerBounds.position.y < enemyBounds.position.y + enemyBounds.size.y &&
+           playerBounds.position.y + playerBounds.size.y > enemyBounds.position.y;
+}
