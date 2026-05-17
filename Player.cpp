@@ -66,9 +66,25 @@ void Player::reset() {
 }
 
 bool Player::checkCollision(const sf::FloatRect& enemyBounds) const {
+    if (!sprite) return false;
+    
     sf::FloatRect playerBounds = sprite->getGlobalBounds();
-    return playerBounds.position.x < enemyBounds.position.x + enemyBounds.size.x &&
-           playerBounds.position.x + playerBounds.size.x > enemyBounds.position.x &&
-           playerBounds.position.y < enemyBounds.position.y + enemyBounds.size.y &&
-           playerBounds.position.y + playerBounds.size.y > enemyBounds.position.y;
+    
+    float playerShrink = 8.f;
+    float enemyShrink = 9.f;
+    
+    float pLeft = playerBounds.position.x + playerShrink;
+    float pTop = playerBounds.position.y + playerShrink;
+    float pRight = playerBounds.position.x + playerBounds.size.x - playerShrink;
+    float pBottom = playerBounds.position.y + playerBounds.size.y - playerShrink;
+    
+    sf::FloatRect adjustedEnemyBounds = enemyBounds;
+    float eLeft = enemyBounds.position.x + enemyShrink;
+    float eTop = enemyBounds.position.y + enemyShrink;
+    float eRight = enemyBounds.position.x + enemyBounds.size.x - enemyShrink;
+    float eBottom = enemyBounds.position.y + enemyBounds.size.y - enemyShrink;
+    
+    // Check intersection
+    return (pLeft < eRight && pRight > eLeft &&
+            pTop < eBottom && pBottom > eTop);
 }

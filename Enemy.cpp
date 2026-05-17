@@ -1,66 +1,111 @@
 #include "Enemy.h"
 #include <iostream>
 
-Enemy::Enemy() : speed(WORM_SPEED), isActive(false), direction(1) {
-    sf::Image img;
-    img.resize({static_cast<unsigned int>(WORM_WIDTH), 
-                static_cast<unsigned int>(WORM_HEIGHT)}, 
-            sf::Color(WORM_COLOR_R, WORM_COLOR_G, WORM_COLOR_B));
-
-    bool loadResult = texture.loadFromImage(img);
-    if (!loadResult) {
-        std::cerr << "CRITICAL: Failed to create fallback texture!\n";
-        return;
+Enemy::Enemy() : speed(WORM_SPEED), isActive(false), direction(1), 
+                 animationTimer(0.f), currentFrame(0) {
+    if (!loadTextures()) {
+        sf::Image img;
+        img.resize({static_cast<unsigned int>(WORM_WIDTH), 
+                    static_cast<unsigned int>(WORM_HEIGHT)}, 
+                   sf::Color(WORM_COLOR_R, WORM_COLOR_G, WORM_COLOR_B));
+        
+        if (!textureRight1.loadFromImage(img)) {
+            std::cerr << "ERROR: Failed to create fallback texture\n";
+            return;
+        }
+        textureRight2 = textureRight1;
+        textureLeft1 = textureRight1;
+        textureLeft2 = textureRight1;
+        
+        std::cout << "INFO: Using fallback worm rectangle\n";
     }
     
-    shape = std::make_unique<sf::Sprite>(texture);
+    shape = std::make_unique<sf::Sprite>(textureRight1);
     shape->setPosition({-100.f, -100.f});
     
-    if (loadTexture("assets/worm.png")) 
-        shape->setTexture(texture);
+    sf::Vector2u texSize = textureRight1.getSize();
+    float scaleX = WORM_WIDTH / static_cast<float>(texSize.x);
+    float scaleY = WORM_HEIGHT / static_cast<float>(texSize.y);
+    shape->setScale({scaleX, scaleY});
 }
 
-bool Enemy::loadTexture(const std::string& path) {
-    sf::Texture tempTexture;
-    if (tempTexture.loadFromFile(path)) {
-        texture = tempTexture;
-        shape->setTexture(texture);
-        
-        shape->setTextureRect(sf::IntRect({0, 0},
-            static_cast<sf::Vector2i>(texture.getSize())));
-        
-        sf::Vector2u texSize = texture.getSize();
+bool Enemy::loadTextures() {
+    bool loaded = true;
+    loaded &= textureRight1.loadFromFile(WORM_RIGHT_1);
+    loaded &= textureRight2.loadFromFile(WORM_RIGHT_2);
+    loaded &= textureLeft1.loadFromFile(WORM_LEFT_1);
+    loaded &= textureLeft2.loadFromFile(WORM_LEFT_2);
+    
+    if (loaded) {
+        sf::Vector2u texSize = textureRight1.getSize();
         float scaleX = WORM_WIDTH / static_cast<float>(texSize.x);
         float scaleY = WORM_HEIGHT / static_cast<float>(texSize.y);
-        shape->setScale({scaleX, scaleY});
-        
+        if (shape) {
+            shape->setScale({scaleX, scaleY});
+        }
         return true;
     }
-    std::cerr << "Warning: Could not load worm texture: " << path << "\n";
+    
+    std::cerr << "ERROR: Could not load all worm textures\n";
     return false;
 }
 
 void Enemy::spawn(float x, float y, int dir) {
+    if (!shape) return;
+    
     shape->setPosition({x, y});
     direction = dir;
     isActive = true;
+    animationTimer = 0.f;
+    currentFrame = 0;
+    
+    if (direction == 1) {
+        shape->setTexture(textureRight1);
+    } else {
+        shape->setTexture(textureLeft1);
+    }
 }
 
-void Enemy::update(float dt) {
-    if (!isActive) return;
+void Enemy::updateAnimation(float dt) {
+    if (!shape || !isActive) return;
+    
+    animationTimer += dt;
+    
+    if (animationTimer >= WORM_ANIMATION_SPEED) {
+        animationTimer = 0.f;
+        currentFrame = 1 - currentFrame;  // Switch between 0 and 1
+        
+        if (direction == 1) {
+            if (currentFrame == 0) {
+                shape->setTexture(textureRight1);
+            } else {
+                shape->setTexture(textureRight2);
+            }
+        } else {
+            if (currentFrame == 0) {
+                shape->setTexture(textureLeft1);
+            } else {
+                shape->setTexture(textureLeft2);
+            }
+        }
+    }
+}
 
-    // Move horizontally
+// 1 -> right, -1 - > left
+void Enemy::update(float dt) {
+    if (!isActive || !shape) return;
+
     shape->move({direction * speed * dt, 0.f});
     
-    // Reverse direction if hitting tunnel walls
     sf::Vector2f pos = shape->getPosition();
     sf::FloatRect bounds = shape->getGlobalBounds();
     if (pos.x <= TUNNEL_WALL_WIDTH + 5.f) {
-        direction = 1;  // Move right
-    } else if (pos.x >= WINDOW_WIDTH - TUNNEL_WALL_WIDTH - 
-               bounds.size.x - 5.f) {
-        direction = -1;  // Move left
+        direction = 1;
+    } else if (pos.x >= WINDOW_WIDTH - TUNNEL_WALL_WIDTH - bounds.size.x - 5.f) {
+        direction = -1;
     }
+    
+    updateAnimation(dt);
 }
 
 void Enemy::draw(sf::RenderWindow& window) {

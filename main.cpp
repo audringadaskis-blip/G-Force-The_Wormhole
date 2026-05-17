@@ -75,8 +75,12 @@ int main() {
         }
         
         if (checkEnemyCollisions(player, enemies)) {
-            gameOver = true;
-            std::cout << "Game Over! Hit by worm!\n";
+            std::cout << "Hit by worm! Restarting...\n"; // for now just auto-restarting, to get rid of the continuous "Game over! Hit by worm" or smth as such
+            
+            resetPlayer(isFalling, inTunnel);
+            player.setPosition(PLAYER_START_X, PLAYER_START_Y);
+            enemies.clear();
+            view.setCenter({400.f, 300.f});
         }
         cleanupEnemies(enemies, view.getCenter().y);
 

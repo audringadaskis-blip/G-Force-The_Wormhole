@@ -13,14 +13,20 @@ constexpr float SPRITE_OFFSET_Y = -50.f;
 constexpr const char* PLAYER_TEXTURE_PATH = "assets/character.png";
 
 // Enemies/Worms
-constexpr float WORM_WIDTH = 100.f;
-constexpr float WORM_HEIGHT = 40.f;
+constexpr float WORM_WIDTH = 60.f;
+constexpr float WORM_HEIGHT = 50.f;
 constexpr float WORM_SPEED = 80.f;
 constexpr float WORM_SPAWN_DISTANCE = 250.f;
-constexpr float WORM_SPAWN_CHANCE = 0.5f;
+constexpr float WORM_SPAWN_CHANCE = 0.3f;
 constexpr int WORM_COLOR_R = 180;
 constexpr int WORM_COLOR_G = 50;
 constexpr int WORM_COLOR_B = 50;
+constexpr float WORM_ANIMATION_SPEED = 0.15f;
+// LEFT is right and RIGHT is left..:D
+constexpr const char* WORM_RIGHT_1 = "assets/worm_l_1.png";
+constexpr const char* WORM_RIGHT_2 = "assets/worm_l_2.png";
+constexpr const char* WORM_LEFT_1 = "assets/worm_r_1.png";
+constexpr const char* WORM_LEFT_2 = "assets/worm_r_2.png";
 
 // Physics
 constexpr float FALL_SPEED = 150.f;
