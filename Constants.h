@@ -46,7 +46,7 @@ constexpr float TUNNEL_WALL_WIDTH = 100.f;
 constexpr float TUNNEL_LEFT_X = 0.f;
 constexpr float TUNNEL_RIGHT_X = 700.f;
 constexpr float TUNNEL_HEIGHT = 100000.f;
-constexpr float TUNNEL_OFFSET = -50000.f;
+constexpr float TUNNEL_OFFSET = TERRAIN_Y;
 
 // Colors
 constexpr sf::Color COLOR_BACKGROUND = sf::Color::Black;

@@ -5,6 +5,101 @@
 #include "Player.h"
 #include "Enemy.h" 
 
+constexpr float BLOCK_WIDTH = 40.f;
+constexpr float BLOCK_HEIGHT = 20.f;
+constexpr float TUNNEL_LEFT = 100.f;
+constexpr float TUNNEL_RIGHT = 700.f;
+constexpr int   BLOCKS_PER_ROW = static_cast<int>((TUNNEL_RIGHT - TUNNEL_LEFT) / BLOCK_WIDTH);
+
+struct Block {
+    float x, y;
+    bool  broken = false;
+
+    sf::FloatRect getBounds() const {
+        return sf::FloatRect({ x, y }, { BLOCK_WIDTH, BLOCK_HEIGHT });
+    }
+};
+
+struct FallingPlatform {
+    std::vector<Block> blocks;
+    float y;
+    bool  active = true;
+    sf::Texture blockTexture;
+
+    bool allBroken() const {
+        for (const auto& b : blocks) if (!b.broken) return false;
+        return true;
+    }
+};
+
+std::vector<FallingPlatform> fallingPlatforms;
+
+void generateFallingPlatforms(int count) {
+    fallingPlatforms.clear();
+
+    for (int i = 0; i < count; i++) {
+        FallingPlatform p;
+        p.y = TUNNEL_ENTRY_Y + 300.f + i * 220.f;
+
+        if (!p.blockTexture.loadFromFile("assets/dirt2.png")){
+        }
+
+        p.blockTexture.setRepeated(false);
+
+        for (int col = 0; col < BLOCKS_PER_ROW; col++) {
+            Block b;
+            b.x = TUNNEL_LEFT + col * BLOCK_WIDTH;
+            b.y = p.y;
+            p.blocks.push_back(b);
+        }
+
+        fallingPlatforms.push_back(std::move(p));
+    }
+}
+
+void drawFallingPlatforms(sf::RenderWindow& window, const sf::View& view, bool inTunnel) {
+    if (!inTunnel) return;
+
+    float viewTop    = view.getCenter().y - 300.f;
+    float viewBottom = view.getCenter().y + 300.f;
+
+    for (const auto& p : fallingPlatforms) {
+        if (!p.active) continue;
+        if (p.y < viewTop || p.y > viewBottom) continue;
+
+        for (const auto& b : p.blocks) {
+            if (b.broken) continue;
+
+            sf::RectangleShape tile({ BLOCK_WIDTH, BLOCK_HEIGHT });
+            tile.setTexture(&p.blockTexture);
+            tile.setPosition({ b.x, b.y });
+            window.draw(tile);
+        }
+    }
+}
+
+bool checkFallingPlatformCollisions(float& playerY, float playerX, bool& isFalling) {
+    float playerFeet = playerY + PLAYER_SIZE;
+
+    for (auto& p : fallingPlatforms) {
+        if (!p.active) continue;
+
+        for (auto& b : p.blocks) {
+            if (b.broken) continue;
+
+            // Check feet landing on top of this block
+            if (playerFeet >= b.y && playerFeet <= b.y + BLOCK_HEIGHT &&
+                playerX + PLAYER_SIZE > b.x && playerX < b.x + BLOCK_WIDTH)
+            {
+                playerY   = b.y - PLAYER_SIZE;
+                isFalling = false;
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 // Draw tunnel walls
 void drawTunnel(sf::RenderWindow& window) {
     sf::RectangleShape leftWall({TUNNEL_WALL_WIDTH, TUNNEL_HEIGHT});
