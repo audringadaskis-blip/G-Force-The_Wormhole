@@ -1,7 +1,7 @@
 #include <iostream>
 #include "Player.h"
 
-Player::Player() : textureLoaded(false) {
+Player::Player() : textureLoaded(false), facingLeft(false), animationTimer(0.f), animationFrame(false) {
     sf::Image img;
     img.resize({static_cast<unsigned int>(PLAYER_SIZE), 
                 static_cast<unsigned int>(PLAYER_SIZE)}, 
@@ -14,9 +14,25 @@ Player::Player() : textureLoaded(false) {
     
     sprite = std::make_unique<sf::Sprite>(texture);
     sprite->setPosition({PLAYER_START_X, PLAYER_START_Y + SPRITE_OFFSET_Y});
+
+    if (!left1.loadFromFile("assets/character_left1.png")) {
+        std::cout << "could not load left1\n";
+    }
+    if (!left2.loadFromFile("assets/character_left2.png")) {
+        std::cout << "could not load left2\n";
+    }
+    if (!right1.loadFromFile("assets/character_right1.png")) {
+        std::cout << "could not load right1\n";
+    }
+    if (!right2.loadFromFile("assets/character_right2.png")) {
+        std::cout << "could not load right2\n";
+    }
+
+    sprite->setTexture(right1);
     
     if (loadTexture(PLAYER_TEXTURE_PATH)) {
-        sprite->setTexture(texture);} else {
+        sprite->setTexture(texture);
+    } else {
         std::cout << "Info: Using fallback green square\n";
     }
 }
@@ -39,8 +55,51 @@ bool Player::loadTexture(const std::string& path) {
 }
 
 void Player::update(float dt, bool moveLeft, bool moveRight) {
-    if (moveLeft) sprite->move({-MOVE_SPEED * dt, 0.f});
-    if (moveRight) sprite->move({MOVE_SPEED * dt, 0.f});
+
+    bool moving = false;
+
+    animationTimer += dt;
+
+    if (animationTimer >= 0.20f) {
+        animationFrame = !animationFrame;
+        animationTimer = 0.f;
+    }
+
+    if (moveLeft) {
+        sprite->move({-MOVE_SPEED * dt, 0.f});
+        facingLeft = true;
+        moving = true;
+
+    }
+    if (moveRight) {
+        sprite->move({MOVE_SPEED * dt, 0.f});
+        facingLeft = false;
+        moving = true;
+    }
+        if (moving) {
+
+        if (facingLeft) {
+
+            if (animationFrame)
+                sprite->setTexture(left1);
+            else
+                sprite->setTexture(left2);
+        }
+        else {
+
+            if (animationFrame)
+                sprite->setTexture(right1);
+            else
+                sprite->setTexture(right2);
+        }
+
+    } else {
+        // Idle frame
+        if (facingLeft)
+            sprite->setTexture(left1);
+        else
+            sprite->setTexture(right1);
+    }
 }
 
 void Player::setPosition(float x, float y) {
@@ -78,7 +137,6 @@ bool Player::checkCollision(const sf::FloatRect& enemyBounds) const {
     float pRight = playerBounds.position.x + playerBounds.size.x - playerShrink;
     float pBottom = playerBounds.position.y + playerBounds.size.y - playerShrink;
     
-    sf::FloatRect adjustedEnemyBounds = enemyBounds;
     float eLeft = enemyBounds.position.x + enemyShrink;
     float eTop = enemyBounds.position.y + enemyShrink;
     float eRight = enemyBounds.position.x + enemyBounds.size.x - enemyShrink;
