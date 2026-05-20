@@ -7,6 +7,10 @@
 #include "Player.h"
 #include "Enemy.h"
 
+struct FallingPlatform;
+extern std::vector<FallingPlatform> fallingPlatforms;
+void generateFallingPlatforms(int count);
+void resetFallingPlatforms(int count);
 void drawTunnel(sf::RenderWindow& window);
 void drawPlatform(sf::RenderWindow& window);
 void drawRungs(sf::RenderWindow& window, const sf::View& view, bool inTunnel);
@@ -22,8 +26,9 @@ void spawnWorm(std::vector<std::unique_ptr<Enemy>>& enemies, float playerY, floa
 bool checkEnemyCollisions(const Player& player, std::vector<std::unique_ptr<Enemy>>& enemies);
 void cleanupEnemies(std::vector<std::unique_ptr<Enemy>>& enemies, float viewY);
 void drawFallingPlatforms(sf::RenderWindow& window, const sf::View& view, bool inTunnel);
-void generateFallingPlatforms(int count);
-bool checkFallingPlatformCollisions(float& playerY, float playerX, bool& isFalling);
+
+
+bool checkFallingPlatformCollisions(float& playerY, float playerX, bool& isFalling, bool spaceJustPressed);
 
 
 int main() {
@@ -35,9 +40,11 @@ int main() {
     sf::View view(sf::FloatRect({0, 0}, {WINDOW_WIDTH, WINDOW_HEIGHT}));
     view.setCenter({400.f, 300.f});
     
+    bool canBreak = false;
     bool isFalling = false;
     bool inTunnel = false;
     bool gameOver = false;
+    bool spaceWasPressed = false;
 
     //background
     sf::Texture backgroundTexture0;
@@ -161,30 +168,37 @@ int main() {
         // Events
         while (const std::optional event = window.pollEvent()) {
             if (event->is<sf::Event::Closed>()) window.close();
-            if (auto* keyEvent = event->getIf<sf::Event::KeyPressed>()) {
-                if (keyEvent->code == sf::Keyboard::Key::R) {
+            if (auto* key = event->getIf<sf::Event::KeyPressed>())
+                if (key->code == sf::Keyboard::Key::R) {
                     resetPlayer(isFalling, inTunnel);
                     player.setPosition(PLAYER_START_X, PLAYER_START_Y);
                     enemies.clear();
                     gameOver = false;
                     view.setCenter({400.f, 300.f});
                 }
-            }
         }
 
         float dt = clock.restart().asSeconds();
-        sf::Vector2f pos = player.getPosition();
+
+        float prevX = player.getPosition().x;
+        float prevY = player.getPosition().y;
+       
 
         // Input
         bool moveLeft = sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A);
         bool moveRight = sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D);
+       
+        bool spacePressed = sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space);
+        bool spaceJustPressed = spacePressed && !spaceWasPressed;
+        spaceWasPressed = spacePressed;
         player.update(dt, moveLeft, moveRight);
-        pos = player.getPosition();
+        sf::Vector2f pos = player.getPosition();
+        bool overHole = isOverHole(pos.x);
 
         // Game logic
-        bool overHole = isOverHole(pos.x);
+       
         pos.y = updateVerticalPosition(pos.y, isFalling, inTunnel, overHole, dt);
-        checkFallingPlatformCollisions(pos.y, pos.x, isFalling);
+        canBreak = checkFallingPlatformCollisions(pos.y, pos.x, isFalling, spaceJustPressed);
         pos.x = constrainToTunnel(pos.x, inTunnel);
         player.setPosition(pos.x, pos.y);
         
@@ -204,6 +218,8 @@ int main() {
             resetPlayer(isFalling, inTunnel);
             player.setPosition(PLAYER_START_X, PLAYER_START_Y);
             enemies.clear();
+
+            resetFallingPlatforms(20);
             view.setCenter({400.f, 300.f});
         }
         cleanupEnemies(enemies, view.getCenter().y);

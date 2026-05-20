@@ -95,10 +95,7 @@ void Player::update(float dt, bool moveLeft, bool moveRight) {
 
     } else {
         // Idle frame
-        if (facingLeft)
-            sprite->setTexture(left1);
-        else
-            sprite->setTexture(right1);
+        sprite->setTexture(texture);
     }
 }
 
