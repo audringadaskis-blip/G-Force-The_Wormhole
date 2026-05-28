@@ -1,6 +1,7 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include <memory>
+#include <iostream>
 #include "Constants.h"
 #include "Player.h"
 #include "Enemy.h" 
@@ -14,6 +15,7 @@ constexpr int   BLOCKS_PER_ROW = static_cast<int>((TUNNEL_RIGHT - TUNNEL_LEFT) /
 struct Block {
     float x, y;
     bool  broken = false;
+    int breakCount = 0;
 
     sf::FloatRect getBounds() const {
         return sf::FloatRect({ x, y }, { BLOCK_WIDTH, BLOCK_HEIGHT });
@@ -26,10 +28,6 @@ struct FallingPlatform {
     bool  active = true;
     sf::Texture blockTexture;
 
-    bool allBroken() const {
-        for (const auto& b : blocks) if (!b.broken) return false;
-        return true;
-    }
 };
 
 std::vector<FallingPlatform> fallingPlatforms;
@@ -41,7 +39,8 @@ void generateFallingPlatforms(int count) {
         FallingPlatform p;
         p.y = TUNNEL_ENTRY_Y + 300.f + i * 220.f;
 
-        if (!p.blockTexture.loadFromFile("assets/dirt2.png")){
+        if (!p.blockTexture.loadFromFile("assets/dirt2.png")) {
+            std::cout << "Failed to load texture!\n";
         }
 
         p.blockTexture.setRepeated(false);
@@ -53,8 +52,13 @@ void generateFallingPlatforms(int count) {
             p.blocks.push_back(b);
         }
 
-        fallingPlatforms.push_back(std::move(p));
+        fallingPlatforms.push_back(p);
     }
+}
+
+void resetFallingPlatforms(int count)
+{
+    generateFallingPlatforms(count);
 }
 
 void drawFallingPlatforms(sf::RenderWindow& window, const sf::View& view, bool inTunnel) {
@@ -72,13 +76,15 @@ void drawFallingPlatforms(sf::RenderWindow& window, const sf::View& view, bool i
 
             sf::RectangleShape tile({ BLOCK_WIDTH, BLOCK_HEIGHT });
             tile.setTexture(&p.blockTexture);
+            tile.setTextureRect(sf::IntRect({0, 0}, {(int)BLOCK_WIDTH, (int)BLOCK_HEIGHT}));
             tile.setPosition({ b.x, b.y });
             window.draw(tile);
         }
     }
 }
 
-bool checkFallingPlatformCollisions(float& playerY, float playerX, bool& isFalling) {
+bool checkFallingPlatformCollisions(float& playerY, float playerX, bool& isFalling, bool spaceJustPressed)
+{
     float playerFeet = playerY + PLAYER_SIZE;
 
     for (auto& p : fallingPlatforms) {
@@ -87,16 +93,36 @@ bool checkFallingPlatformCollisions(float& playerY, float playerX, bool& isFalli
         for (auto& b : p.blocks) {
             if (b.broken) continue;
 
-            // Check feet landing on top of this block
-            if (playerFeet >= b.y && playerFeet <= b.y + BLOCK_HEIGHT &&
-                playerX + PLAYER_SIZE > b.x && playerX < b.x + BLOCK_WIDTH)
-            {
-                playerY   = b.y - PLAYER_SIZE;
+            bool inXRange =
+                playerX + PLAYER_SIZE > b.x &&
+                playerX < b.x + BLOCK_WIDTH;
+
+            if (!inXRange) continue;
+
+            bool landingOnTop =
+                playerFeet >= b.y &&
+                playerFeet <= b.y + BLOCK_HEIGHT;
+
+            if (landingOnTop) {
+
+                playerY = b.y - PLAYER_SIZE;
                 isFalling = false;
+
+                if (spaceJustPressed) {
+                    b.breakCount++;
+                }
+
+                // 3 paspaudimai = break
+                if (b.breakCount >= 3) {
+                    b.broken = true;
+                    isFalling = true;
+                }
+
                 return true;
             }
         }
     }
+
     return false;
 }
 
@@ -114,10 +140,24 @@ void drawTunnel(sf::RenderWindow& window) {
 
 // Draw platform with hole
 void drawPlatform(sf::RenderWindow& window) {
+    static sf::Texture platformTexture;
+    static bool loaded = false;
+    if (!loaded) {
+        if (!platformTexture.loadFromFile("assets/dirt2.png")) {
+            std::cout << "Failed to load dirt2.png!\n";
+        }
+        platformTexture.setRepeated(true);
+        loaded = true;
+    }
+
     sf::RectangleShape left({HOLE_START_X, 20.f});
     sf::RectangleShape right({WINDOW_WIDTH - HOLE_END_X, 20.f});
-    left.setFillColor(COLOR_PLATFORM);
-    right.setFillColor(COLOR_PLATFORM);
+
+    left.setTexture(&platformTexture);
+    left.setTextureRect(sf::IntRect({0, 0}, {(int)HOLE_START_X, 20}));
+    right.setTexture(&platformTexture);
+    right.setTextureRect(sf::IntRect({0, 0}, {(int)(WINDOW_WIDTH - HOLE_END_X), 20}));
+
     left.setPosition({0.f, TERRAIN_Y});
     right.setPosition({HOLE_END_X, TERRAIN_Y});
     window.draw(left);

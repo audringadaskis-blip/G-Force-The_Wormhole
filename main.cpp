@@ -7,6 +7,10 @@
 #include "Player.h"
 #include "Enemy.h"
 
+struct FallingPlatform;
+extern std::vector<FallingPlatform> fallingPlatforms;
+void generateFallingPlatforms(int count);
+void resetFallingPlatforms(int count);
 void drawTunnel(sf::RenderWindow& window);
 void drawPlatform(sf::RenderWindow& window);
 void drawRungs(sf::RenderWindow& window, const sf::View& view, bool inTunnel);
@@ -22,8 +26,9 @@ void spawnWorm(std::vector<std::unique_ptr<Enemy>>& enemies, float playerY, floa
 bool checkEnemyCollisions(const Player& player, std::vector<std::unique_ptr<Enemy>>& enemies);
 void cleanupEnemies(std::vector<std::unique_ptr<Enemy>>& enemies, float viewY);
 void drawFallingPlatforms(sf::RenderWindow& window, const sf::View& view, bool inTunnel);
-void generateFallingPlatforms(int count);
-bool checkFallingPlatformCollisions(float& playerY, float playerX, bool& isFalling);
+
+
+bool checkFallingPlatformCollisions(float& playerY, float playerX, bool& isFalling, bool spaceJustPressed);
 
 
 int main() {
@@ -35,11 +40,13 @@ int main() {
     sf::View view(sf::FloatRect({0, 0}, {WINDOW_WIDTH, WINDOW_HEIGHT}));
     view.setCenter({400.f, 300.f});
     
+    bool canBreak = false;
     bool isFalling = false;
     bool inTunnel = false;
     bool gameOver = false;
+    bool spaceWasPressed = false;
 
-    //background
+    // background
     sf::Texture backgroundTexture0;
     sf::Texture backgroundTexture1;
     sf::Texture backgroundTexture2;
@@ -73,7 +80,7 @@ int main() {
     sf::Sprite backgroundSprite8(backgroundTexture8);
     sf::Sprite backgroundSprite9(backgroundTexture9);
 
-    backgroundSprite0.setPosition(sf::Vector2f(0.f, 0.f));
+     backgroundSprite0.setPosition(sf::Vector2f(0.f, 0.f));
     backgroundSprite1.setPosition(sf::Vector2f(0.f, 0.f));
     backgroundSprite2.setPosition(sf::Vector2f(0.f, 0.f));
     backgroundSprite3.setPosition(sf::Vector2f(0.f, 0.f));
@@ -121,36 +128,37 @@ int main() {
     backgroundSprite8.setScale(sf::Vector2f(scaleX, scaleY));
     backgroundSprite9.setScale(sf::Vector2f(scaleX, scaleY));
 
-    //background for tunnel
-
+    // background for tunnel
     sf::Texture caveTexture;
-    if (!caveTexture.loadFromFile("assets/maincave.png")) { return -1; }
+    if (!caveTexture.loadFromFile("assets/background1.png")) { return -1; }
     caveTexture.setRepeated(true);
 
     sf::Sprite caveSprite(caveTexture);
-    caveSprite.setTextureRect(sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(1280, 100000)));
+    caveSprite.setTextureRect(sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(477, 100000)));
 
-    float caveScaleX = 800.f / 1280.f;
-    float caveScaleY = caveScaleX * 2.0f;
+    float caveScaleX = 600.f / 477.f;
+    float caveScaleY = caveScaleX;
 
     caveSprite.setScale(sf::Vector2f(caveScaleX, caveScaleY));
     caveSprite.setPosition(sf::Vector2f(TUNNEL_LEFT_X + TUNNEL_WALL_WIDTH, TUNNEL_OFFSET));
-
+    
     // background for tunnel walls
 
-    sf::Texture stoneTexture;
-    if (!stoneTexture.loadFromFile("assets/dirt2.png")) { return -1; }
-    stoneTexture.setRepeated(true);
+    sf::Texture wallTexture;
+    if (!wallTexture.loadFromFile("assets/dirt2.png")) { return -1; }
+    wallTexture.setRepeated(true);
 
-    sf::Sprite leftWallSprite(stoneTexture);
-    sf::Sprite rightWallSprite(stoneTexture);
+    sf::Sprite leftWallSprite(wallTexture);
+    sf::Sprite rightWallSprite(wallTexture);
 
-    leftWallSprite.setTextureRect(sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(256, 100000)));
-    rightWallSprite.setTextureRect(sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(256, 100000)));
+    leftWallSprite.setTextureRect(sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(100, 100000)));
+    rightWallSprite.setTextureRect(sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(100, 100000)));
 
-    float stoneScaleX = TUNNEL_WALL_WIDTH / 256.f;
-    leftWallSprite.setScale(sf::Vector2f(stoneScaleX, stoneScaleX));
-    rightWallSprite.setScale(sf::Vector2f(stoneScaleX, stoneScaleX));
+    float wallScaleX = 1.f;  // no scaling at all, 100px texture = 100px wall
+    float wallScaleY = 1.f;
+
+    leftWallSprite.setScale(sf::Vector2f(wallScaleX, wallScaleY));
+    rightWallSprite.setScale(sf::Vector2f(wallScaleX, wallScaleY));
 
     leftWallSprite.setPosition(sf::Vector2f(TUNNEL_LEFT_X, TUNNEL_OFFSET));
     rightWallSprite.setPosition(sf::Vector2f(TUNNEL_RIGHT_X, TUNNEL_OFFSET));
@@ -161,30 +169,37 @@ int main() {
         // Events
         while (const std::optional event = window.pollEvent()) {
             if (event->is<sf::Event::Closed>()) window.close();
-            if (auto* keyEvent = event->getIf<sf::Event::KeyPressed>()) {
-                if (keyEvent->code == sf::Keyboard::Key::R) {
+            if (auto* key = event->getIf<sf::Event::KeyPressed>())
+                if (key->code == sf::Keyboard::Key::R) {
                     resetPlayer(isFalling, inTunnel);
                     player.setPosition(PLAYER_START_X, PLAYER_START_Y);
                     enemies.clear();
                     gameOver = false;
                     view.setCenter({400.f, 300.f});
                 }
-            }
         }
 
         float dt = clock.restart().asSeconds();
-        sf::Vector2f pos = player.getPosition();
+
+        float prevX = player.getPosition().x;
+        float prevY = player.getPosition().y;
+       
 
         // Input
         bool moveLeft = sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A);
         bool moveRight = sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D);
+       
+        bool spacePressed = sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space);
+        bool spaceJustPressed = spacePressed && !spaceWasPressed;
+        spaceWasPressed = spacePressed;
         player.update(dt, moveLeft, moveRight);
-        pos = player.getPosition();
+        sf::Vector2f pos = player.getPosition();
+        bool overHole = isOverHole(pos.x);
 
         // Game logic
-        bool overHole = isOverHole(pos.x);
+       
         pos.y = updateVerticalPosition(pos.y, isFalling, inTunnel, overHole, dt);
-        checkFallingPlatformCollisions(pos.y, pos.x, isFalling);
+        canBreak = checkFallingPlatformCollisions(pos.y, pos.x, isFalling, spaceJustPressed);
         pos.x = constrainToTunnel(pos.x, inTunnel);
         player.setPosition(pos.x, pos.y);
         
@@ -204,6 +219,8 @@ int main() {
             resetPlayer(isFalling, inTunnel);
             player.setPosition(PLAYER_START_X, PLAYER_START_Y);
             enemies.clear();
+
+            resetFallingPlatforms(20);
             view.setCenter({400.f, 300.f});
         }
         cleanupEnemies(enemies, view.getCenter().y);
