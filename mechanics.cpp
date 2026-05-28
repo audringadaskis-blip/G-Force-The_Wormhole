@@ -36,8 +36,14 @@ float updateVerticalPosition(float playerY, bool& isFalling, bool& inTunnel,
 float constrainToTunnel(float playerX, bool inTunnel) {
     if (inTunnel) {
         if (playerX < TUNNEL_WALL_WIDTH) playerX = TUNNEL_WALL_WIDTH;
-        if (playerX > WINDOW_WIDTH - TUNNEL_WALL_WIDTH - PLAYER_SIZE) 
-            playerX = WINDOW_WIDTH - TUNNEL_WALL_WIDTH - PLAYER_SIZE;
+        if (playerX > WINDOW_WIDTH - TUNNEL_WALL_WIDTH - PLAYER_SIZE - 25.f) 
+            playerX = WINDOW_WIDTH - TUNNEL_WALL_WIDTH - PLAYER_SIZE - 25.f;
+    } else {
+        if (playerX < 0.f)
+            playerX = 0.f;
+
+        if (playerX > WINDOW_WIDTH - PLAYER_SIZE)
+            playerX = WINDOW_WIDTH - PLAYER_SIZE;
     }
     return playerX;
 }

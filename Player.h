@@ -9,8 +9,16 @@ class Enemy;
 class Player {
 public:
     sf::Texture texture;
+    sf::Texture left1;
+    sf::Texture left2;
+    sf::Texture right1;
+    sf::Texture right2;
     std::unique_ptr<sf::Sprite> sprite;
     bool textureLoaded;
+
+    bool facingLeft;
+    float animationTimer;
+    bool animationFrame;
     
     Player();
     bool loadTexture(const std::string& path);
