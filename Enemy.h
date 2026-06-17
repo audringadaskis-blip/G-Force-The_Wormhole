@@ -8,21 +8,37 @@ class Player;
 
 class Enemy {
 public:
-    sf::Texture textureRight1;
-    sf::Texture textureRight2;
-    sf::Texture textureLeft1;
-    sf::Texture textureLeft2;
+    static sf::Texture textureRight1;
+    static sf::Texture textureRight2;
+    static sf::Texture textureLeft1;
+    static sf::Texture textureLeft2;
+    
+    static sf::Texture textureBatRight1;
+    static sf::Texture textureBatRight2;
+    static sf::Texture textureBatRight3;
+    static sf::Texture textureBatLeft1;
+    static sf::Texture textureBatLeft2;
+    static sf::Texture textureBatLeft3;
+
     std::unique_ptr<sf::Sprite> shape; 
     float speed;
     bool isActive;
-    int direction;  // 1 = right, -1 = left
-    
+    int direction;
     float animationTimer;
     int currentFrame;
 
+    float baseScaleX;
+    float baseScaleY;
+    const sf::Texture* currentTexture;
+    float actualWidth;
+    float actualHeight;
+
+    enum class Type { WORM, BAT };
+    Type enemyType;
+
     Enemy();
-    bool loadTextures();
-    void spawn(float x, float y, int dir);
+    static bool loadTextures();
+    void spawn(float x, float y, int dir, Type type);
     void updateAnimation(float dt);
     void update(float dt);
     void draw(sf::RenderWindow& window);

@@ -23,6 +23,7 @@ float constrainToTunnel(float playerX, bool inTunnel);
 void resetPlayer(bool& isFalling, bool& inTunnel);
 void drawEnemies(sf::RenderWindow& window, std::vector<std::unique_ptr<Enemy>>& enemies);
 void spawnWorm(std::vector<std::unique_ptr<Enemy>>& enemies, float playerY, float tunnelEntryY);
+void spawnBat(std::vector<std::unique_ptr<Enemy>>& enemies, float playerY);
 bool checkEnemyCollisions(const Player& player, std::vector<std::unique_ptr<Enemy>>& enemies);
 void cleanupEnemies(std::vector<std::unique_ptr<Enemy>>& enemies, float viewY);
 void drawFallingPlatforms(sf::RenderWindow& window, const sf::View& view, bool inTunnel);
@@ -80,7 +81,7 @@ int main() {
     sf::Sprite backgroundSprite8(backgroundTexture8);
     sf::Sprite backgroundSprite9(backgroundTexture9);
 
-     backgroundSprite0.setPosition(sf::Vector2f(0.f, 0.f));
+    backgroundSprite0.setPosition(sf::Vector2f(0.f, 0.f));
     backgroundSprite1.setPosition(sf::Vector2f(0.f, 0.f));
     backgroundSprite2.setPosition(sf::Vector2f(0.f, 0.f));
     backgroundSprite3.setPosition(sf::Vector2f(0.f, 0.f));
@@ -207,6 +208,7 @@ int main() {
         
         if (inTunnel) {
             spawnWorm(enemies, pos.y, TUNNEL_ENTRY_Y);
+            spawnBat(enemies, pos.y); 
         }
 
         for (auto& enemy : enemies) {
@@ -223,6 +225,7 @@ int main() {
             resetFallingPlatforms(20);
             view.setCenter({400.f, 300.f});
         }
+            
         cleanupEnemies(enemies, view.getCenter().y);
 
         // Camera
@@ -252,7 +255,7 @@ int main() {
         drawFallingPlatforms(window, view, inTunnel);
         drawEnemies(window, enemies); 
         player.draw(window);
-        
+
         window.display();
     }
     return 0;

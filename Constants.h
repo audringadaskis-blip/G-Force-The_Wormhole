@@ -22,11 +22,36 @@ constexpr int WORM_COLOR_R = 180;
 constexpr int WORM_COLOR_G = 50;
 constexpr int WORM_COLOR_B = 50;
 constexpr float WORM_ANIMATION_SPEED = 0.15f;
-// LEFT is right and RIGHT is left..:D
-constexpr const char* WORM_RIGHT_1 = "assets/worm_l_1.png";
-constexpr const char* WORM_RIGHT_2 = "assets/worm_l_2.png";
-constexpr const char* WORM_LEFT_1 = "assets/worm_r_1.png";
-constexpr const char* WORM_LEFT_2 = "assets/worm_r_2.png";
+constexpr const char* WORM_RIGHT_1 = "assets/worm_r_1.png";
+constexpr const char* WORM_RIGHT_2 = "assets/worm_r_2.png";
+constexpr const char* WORM_LEFT_1 = "assets/worm_l_1.png";
+constexpr const char* WORM_LEFT_2 = "assets/worm_l_2.png";
+
+// Enemies/Bats
+constexpr float BAT_WIDTH = 60.f;
+constexpr float BAT_HEIGHT = 40.f;
+constexpr float BAT_SPEED = 100.f;
+constexpr float BAT_ANIMATION_SPEED = 0.12f;
+constexpr float BAT_SPAWN_CHANCE = 0.4f;
+
+// Bat textures
+constexpr const char* BAT_RIGHT_1 = "assets/1.png";
+constexpr const char* BAT_RIGHT_2 = "assets/2.png";
+constexpr const char* BAT_RIGHT_3 = "assets/3.png";
+constexpr const char* BAT_LEFT_1 = "assets/4.png";
+constexpr const char* BAT_LEFT_2 = "assets/5.png";
+constexpr const char* BAT_LEFT_3 = "assets/6.png";
+
+// for worms
+constexpr float PLATFORM_1_Y = 425.f;   // Top platform (moved down) -220.f, platformos yra kas 220.f
+constexpr float PLATFORM_2_Y = 840.f;   // Middle platform
+constexpr float PLATFORM_3_Y = 1060.f;   // Bottom platform
+
+// for bats
+constexpr float AIR_GAP_1_Y = 535.f;   // Between platform 1 (620) and 2 (840)
+constexpr float AIR_GAP_2_Y = 950.f;   // Between platform 2 (840) and 3 (1060)
+constexpr float AIR_GAP_SPACING = 220.f;  // Same as platform spacing
+constexpr float FIRST_AIR_GAP_Y = 730.f;  // First air gap Y position
 
 // Physics
 constexpr float FALL_SPEED = 150.f;
