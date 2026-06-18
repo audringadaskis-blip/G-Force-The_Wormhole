@@ -68,7 +68,7 @@ void spawnWorm(std::vector<std::unique_ptr<Enemy>>& enemies, float playerY, floa
     frameCounter++;
     if (frameCounter % 30 != 0) return;
     
-    if (chanceDist(gen) > 0.7f) return;  // 70% chance to spawn (was 30%)
+    if (chanceDist(gen) > 0.7f) return;  // 70%
     
     // Calculate player's layer
     int playerLayer = 0;
@@ -76,7 +76,7 @@ void spawnWorm(std::vector<std::unique_ptr<Enemy>>& enemies, float playerY, floa
         playerLayer = static_cast<int>((playerY - FIRST_PLATFORM_Y) / PLATFORM_SPACING);
     }
     
-    int layerOffset = 1 + static_cast<int>(chanceDist(gen) * 3);  // 1, 2, or 3
+    int layerOffset = 2 + static_cast<int>(chanceDist(gen) * 3);  // 1, 2, or 3
     int targetLayer = playerLayer + layerOffset;
     
     float wormY = FIRST_PLATFORM_Y + (targetLayer * PLATFORM_SPACING);

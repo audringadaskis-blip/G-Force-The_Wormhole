@@ -121,7 +121,6 @@ void Enemy::updateAnimation(float dt) {
         animationTimer = 0.f;
         currentFrame = (currentFrame + 1) % maxFrames;
         
-        // Select texture based on direction
         if (enemyType == Type::BAT) {
             if (direction == 1) {
                 if (currentFrame == 0) currentTexture = &textureBatRight1;
@@ -144,6 +143,18 @@ void Enemy::updateAnimation(float dt) {
         }
         
         shape->setTexture(*currentTexture);
+        
+        sf::Vector2u texSize = currentTexture->getSize();
+        shape->setTextureRect(sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(texSize.x, texSize.y)));
+        
+        float scaleX = (enemyType == Type::BAT) ? 
+            (BAT_WIDTH / static_cast<float>(texSize.x)) :
+            (WORM_WIDTH / static_cast<float>(texSize.x));
+        float scaleY = (enemyType == Type::BAT) ? 
+            (BAT_HEIGHT / static_cast<float>(texSize.y)) :
+            (WORM_HEIGHT / static_cast<float>(texSize.y));
+        
+        shape->setScale(sf::Vector2f(scaleX, scaleY));
     }
 }
 

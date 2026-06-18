@@ -187,8 +187,10 @@ int main() {
        
 
         // Input
-        bool moveLeft = sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A);
-        bool moveRight = sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D);
+        bool moveLeft = sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A) || 
+                sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left);
+        bool moveRight = sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D) || 
+                sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right);
        
         bool spacePressed = sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space);
         bool spaceJustPressed = spacePressed && !spaceWasPressed;
