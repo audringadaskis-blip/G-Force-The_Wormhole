@@ -225,6 +225,13 @@ int main() {
     setupBottomSprite(bottomSprite5, bottomTexture5, 0.f);
 
     generateFallingPlatforms(20);
+
+    static bool victorySetupDone = false;
+    static std::vector<sf::Sprite> victoryClones;
+    static sf::Texture victoryTexture;
+    static sf::Sprite victorySprite(wallTexture); 
+    static bool victoryAssetsLoaded = false;
+    static sf::Clock victoryInputClock;
     
     while (window.isOpen()) {
         // Events
@@ -238,6 +245,9 @@ int main() {
                     enemies.clear();
                     gameOver = false;
                     view.setCenter({400.f, 300.f});
+
+                    victorySetupDone = false;
+                    victoryClones.clear();
                 }
         }
 
@@ -287,6 +297,9 @@ int main() {
 
             resetFallingPlatforms(20);
             view.setCenter({400.f, 300.f});
+
+            victorySetupDone = false;
+            victoryClones.clear();
         }
             
         cleanupEnemies(enemies, view.getCenter().y);
@@ -328,6 +341,63 @@ int main() {
         drawEnemies(window, enemies); 
         player.draw(window);
 
+        if (reachedFinalPlatform) {
+            if (!victorySetupDone) {
+                // Užkrauname tikrąjį pergalės užrašą
+                if (victoryTexture.loadFromFile("assets/victory.png")) { 
+                    victoryAssetsLoaded = true;
+                    victorySprite.setTexture(victoryTexture);
+                    victorySprite.setTextureRect(sf::IntRect({0, 0}, static_cast<sf::Vector2i>(victoryTexture.getSize())));
+                    sf::Vector2u vSize = victoryTexture.getSize();
+                    victorySprite.setOrigin({vSize.x / 2.f, vSize.y / 2.f});
+                }
+
+                for (int i = 0; i < 50; ++i) {
+                    sf::Sprite clone(player.texture);
+                    if (player.sprite) {
+                        clone.setTextureRect(player.sprite->getTextureRect());
+                        clone.setScale(player.sprite->getScale());
+                    }
+                    
+                    float cloneX = 50.f + (rand() % 700);
+                    float cloneY = WINDOW_HEIGHT - PLAYER_SIZE - 150.f;
+                    
+                    clone.setPosition({cloneX, cloneY});
+                    victoryClones.push_back(clone);
+                }
+                victorySetupDone = true;
+                victoryInputClock.restart(); 
+            }
+
+            window.setView(window.getDefaultView());
+
+            for (const auto& clone : victoryClones) {
+                window.draw(clone);
+            }
+
+            if (reachedFinalPlatform && victoryAssetsLoaded) {
+                victorySprite.setPosition({WINDOW_WIDTH / 2.f, WINDOW_HEIGHT / 2.f});
+                window.draw(victorySprite);
+            }
+
+            window.setView(view);
+
+            if (victoryAssetsLoaded) {
+                window.setView(window.getDefaultView()); 
+                victorySprite.setPosition({WINDOW_WIDTH / 2.f, WINDOW_HEIGHT / 2.f});
+                window.draw(victorySprite);
+                window.setView(view); 
+            }
+
+            // Išjungimas po 0.4s apsaugos paspaudus Space, Enter arba Escape
+            if (reachedFinalPlatform && victoryInputClock.getElapsedTime().asSeconds() > 0.4f) {
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space) ||
+                    sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Enter) ||
+                    sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape)) {
+                    window.close();
+                }
+            }
+        }
         window.display();
     }
     return 0;
