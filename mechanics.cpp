@@ -76,8 +76,9 @@ void spawnWorm(std::vector<std::unique_ptr<Enemy>>& enemies, float playerY, floa
         playerLayer = static_cast<int>((playerY - FIRST_PLATFORM_Y) / PLATFORM_SPACING);
     }
     
-    int layerOffset = 2 + static_cast<int>(chanceDist(gen) * 3);  // 1, 2, or 3
+    int layerOffset = 1 + static_cast<int>(chanceDist(gen) * 3);  // 1, 2, or 3
     int targetLayer = playerLayer + layerOffset;
+    if (targetLayer < 0) targetLayer = 0;
     
     float wormY = FIRST_PLATFORM_Y + (targetLayer * PLATFORM_SPACING);
 
