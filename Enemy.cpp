@@ -163,17 +163,20 @@ void Enemy::update(float dt) {
 
     shape->move({direction * speed * dt, 0.f});
     
-    // Get current position and bounds
-    sf::Vector2f pos = shape->getPosition();
     sf::FloatRect bounds = shape->getGlobalBounds();
+    float leftEdge = bounds.position.x;
+    float rightEdge = bounds.position.x + bounds.size.x;
+    float topEdge = bounds.position.y;
     
-    // Check wall collisions
-    float leftWall = TUNNEL_WALL_WIDTH + 5.f;
-    float rightWall = WINDOW_WIDTH - TUNNEL_WALL_WIDTH - bounds.size.x - 5.f;
-    
-    if (pos.x <= leftWall) {
+    // Left wall
+    if (leftEdge <= TUNNEL_WALL_WIDTH) {
         direction = 1;
-    } else if (pos.x >= rightWall) {
+        // Snap to wall
+        shape->setPosition(sf::Vector2f(TUNNEL_WALL_WIDTH, topEdge));
+    } 
+
+    // Right wall
+    else if (rightEdge >= WINDOW_WIDTH - TUNNEL_WALL_WIDTH) {
         direction = -1;
     }
     
