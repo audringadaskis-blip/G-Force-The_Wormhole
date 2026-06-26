@@ -63,7 +63,7 @@ void spawnWorm(std::vector<std::unique_ptr<Enemy>>& enemies, float playerY, floa
     
     constexpr float PLATFORM_SPACING = 220.f;
     constexpr float FIRST_PLATFORM_Y = PLATFORM_1_Y;  // 620.f
-    constexpr int MAX_LEVELS = 25;
+    constexpr int MAX_LEVELS = 20;
 
     static int frameCounter = 0;
     frameCounter++;
@@ -128,7 +128,7 @@ void spawnBat(std::vector<std::unique_ptr<Enemy>>& enemies, float playerY) {
     
     constexpr float AIR_GAP_SPACING = 220.f;
     constexpr float FIRST_AIR_GAP_Y = 730.f;
-    constexpr int MAX_LEVELS = 25;
+    constexpr int MAX_LEVELS = 20;
     
     static int frameCounter = 0;
     frameCounter++;
