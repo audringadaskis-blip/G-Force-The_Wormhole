@@ -171,8 +171,6 @@ void Enemy::update(float dt) {
     // Left wall
     if (leftEdge <= TUNNEL_WALL_WIDTH) {
         direction = 1;
-        // Snap to wall
-        shape->setPosition(sf::Vector2f(TUNNEL_WALL_WIDTH, topEdge));
     } 
 
     // Right wall
