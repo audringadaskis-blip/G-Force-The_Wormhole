@@ -206,11 +206,17 @@ void drawFinalPlatform(sf::RenderWindow& window) {
 
 // Update camera view (smooth follow)
 void updateCamera(sf::View& view, const sf::Vector2f& playerPos, 
-                  bool inTunnel, bool isFalling, float dt) {
+                  bool inTunnel, bool isFalling, float dt, bool reachedFinalPlatform) {
+    
     float targetViewY = 300.f;
     
     if (playerPos.y > TUNNEL_ENTRY_Y) {
         targetViewY = playerPos.y - 50.f;
+    }
+
+    float maxViewY = FINAL_PLATFORM_Y - (WINDOW_HEIGHT / 2.f) + 100.f;
+    if (targetViewY > maxViewY) {
+        targetViewY = maxViewY;
     }
 
     float currentViewY = view.getCenter().y;

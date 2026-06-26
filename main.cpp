@@ -16,7 +16,7 @@ void drawPlatform(sf::RenderWindow& window);
 void drawRungs(sf::RenderWindow& window, const sf::View& view, bool inTunnel);
 void drawFinalPlatform(sf::RenderWindow& window);
 void updateCamera(sf::View& view, const sf::Vector2f& playerPos, 
-                  bool inTunnel, bool isFalling, float dt);
+                  bool inTunnel, bool isFalling, float dt, bool reachedFinalPlatform);
 bool isOverHole(float playerX);
 float updateVerticalPosition(float playerY, bool& isFalling, bool& inTunnel, 
                            bool overHole, float dt, bool& reachedFinalPlatform);
@@ -234,7 +234,7 @@ int main() {
         cleanupEnemies(enemies, view.getCenter().y);
 
         // Camera
-        updateCamera(view, pos, inTunnel, isFalling, dt);
+        updateCamera(view, pos, inTunnel, isFalling, dt, reachedFinalPlatform);
 
         // Render
         window.clear(COLOR_BACKGROUND);
