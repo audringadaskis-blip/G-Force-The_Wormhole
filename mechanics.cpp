@@ -63,7 +63,8 @@ void spawnWorm(std::vector<std::unique_ptr<Enemy>>& enemies, float playerY, floa
     
     constexpr float PLATFORM_SPACING = 220.f;
     constexpr float FIRST_PLATFORM_Y = PLATFORM_1_Y;  // 620.f
-    
+    constexpr int MAX_LEVELS = 25;
+
     static int frameCounter = 0;
     frameCounter++;
     if (frameCounter % 30 != 0) return;
@@ -76,8 +77,15 @@ void spawnWorm(std::vector<std::unique_ptr<Enemy>>& enemies, float playerY, floa
         playerLayer = static_cast<int>((playerY - FIRST_PLATFORM_Y) / PLATFORM_SPACING);
     }
     
+    if (playerLayer >= MAX_LEVELS) return;
+
     int layerOffset = 1 + static_cast<int>(chanceDist(gen) * 3);  // 1, 2, or 3
     int targetLayer = playerLayer + layerOffset;
+
+    if (targetLayer >= MAX_LEVELS) {
+        targetLayer = MAX_LEVELS - 1;
+    }
+
     if (targetLayer < 0) targetLayer = 0;
     
     float wormY = FIRST_PLATFORM_Y + (targetLayer * PLATFORM_SPACING);
@@ -120,6 +128,7 @@ void spawnBat(std::vector<std::unique_ptr<Enemy>>& enemies, float playerY) {
     
     constexpr float AIR_GAP_SPACING = 220.f;
     constexpr float FIRST_AIR_GAP_Y = 730.f;
+    constexpr int MAX_LEVELS = 25;
     
     static int frameCounter = 0;
     frameCounter++;
@@ -132,11 +141,17 @@ void spawnBat(std::vector<std::unique_ptr<Enemy>>& enemies, float playerY) {
     if (playerY > FIRST_AIR_GAP_Y) {
         playerGapLayer = static_cast<int>((playerY - FIRST_AIR_GAP_Y) / AIR_GAP_SPACING);
     }
+
+    if (playerGapLayer >= MAX_LEVELS) return;
     
-    // Spawn ahead: layers +2 to +4 (bats appear before player reaches them)
+    // Spawn ahead
     int gapOffset = 2 + static_cast<int>(chanceDist(gen) * 3);  // 2, 3, or 4
     int targetGap = playerGapLayer + gapOffset;
-    
+
+    if (targetGap >= MAX_LEVELS) {
+        targetGap = MAX_LEVELS - 2;
+    }
+
     // Calculate Y: first air gap + (layer * spacing)
     float batY = FIRST_AIR_GAP_Y + (targetGap * AIR_GAP_SPACING);
     

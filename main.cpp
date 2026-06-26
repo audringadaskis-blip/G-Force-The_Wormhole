@@ -164,7 +164,7 @@ int main() {
     leftWallSprite.setPosition(sf::Vector2f(TUNNEL_LEFT_X, TUNNEL_OFFSET));
     rightWallSprite.setPosition(sf::Vector2f(TUNNEL_RIGHT_X, TUNNEL_OFFSET));
 
-    generateFallingPlatforms(20);
+    generateFallingPlatforms(25);
     
     while (window.isOpen()) {
         // Events
