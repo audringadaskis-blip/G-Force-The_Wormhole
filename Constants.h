@@ -66,6 +66,12 @@ constexpr float HOLE_END_X = 450.f;
 constexpr float TUNNEL_ENTRY_Y = 350.f;
 constexpr float RUNG_SPACING = 120.f;
 
+constexpr int MAX_LEVELS = 20;
+constexpr float PLATFORM_SPACING = 220.f;
+constexpr float FIRST_PLATFORM_Y = 620.f; 
+constexpr float FINAL_PLATFORM_Y = FIRST_PLATFORM_Y + (MAX_LEVELS + 3) * PLATFORM_SPACING;  // the () part changes how far into nothing hte player will be falling
+constexpr float FINAL_PLATFORM_HEIGHT = 300.f;
+
 // Tunnel
 constexpr float TUNNEL_WALL_WIDTH = 100.f;
 constexpr float TUNNEL_LEFT_X = 0.f;

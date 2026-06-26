@@ -14,11 +14,12 @@ void resetFallingPlatforms(int count);
 void drawTunnel(sf::RenderWindow& window);
 void drawPlatform(sf::RenderWindow& window);
 void drawRungs(sf::RenderWindow& window, const sf::View& view, bool inTunnel);
+void drawFinalPlatform(sf::RenderWindow& window);
 void updateCamera(sf::View& view, const sf::Vector2f& playerPos, 
                   bool inTunnel, bool isFalling, float dt);
 bool isOverHole(float playerX);
 float updateVerticalPosition(float playerY, bool& isFalling, bool& inTunnel, 
-                           bool overHole, float dt);
+                           bool overHole, float dt, bool& reachedFinalPlatform);
 float constrainToTunnel(float playerX, bool inTunnel);
 void resetPlayer(bool& isFalling, bool& inTunnel);
 void drawEnemies(sf::RenderWindow& window, std::vector<std::unique_ptr<Enemy>>& enemies);
@@ -46,6 +47,7 @@ int main() {
     bool inTunnel = false;
     bool gameOver = false;
     bool spaceWasPressed = false;
+    bool reachedFinalPlatform = false;
 
     // background
     sf::Texture backgroundTexture0;
@@ -173,6 +175,7 @@ int main() {
             if (auto* key = event->getIf<sf::Event::KeyPressed>())
                 if (key->code == sf::Keyboard::Key::R) {
                     resetPlayer(isFalling, inTunnel);
+                    reachedFinalPlatform = false;
                     player.setPosition(PLAYER_START_X, PLAYER_START_Y);
                     enemies.clear();
                     gameOver = false;
@@ -201,7 +204,7 @@ int main() {
 
         // Game logic
        
-        pos.y = updateVerticalPosition(pos.y, isFalling, inTunnel, overHole, dt);
+        pos.y = updateVerticalPosition(pos.y, isFalling, inTunnel, overHole, dt, reachedFinalPlatform);        
         canBreak = checkFallingPlatformCollisions(pos.y, pos.x, isFalling, spaceJustPressed);
         pos.x = constrainToTunnel(pos.x, inTunnel);
         player.setPosition(pos.x, pos.y);
@@ -209,8 +212,8 @@ int main() {
 
         
         if (inTunnel) {
-            spawnWorm(enemies, pos.y, TUNNEL_ENTRY_Y);
-            spawnBat(enemies, pos.y); 
+            //spawnWorm(enemies, pos.y, TUNNEL_ENTRY_Y);
+            //spawnBat(enemies, pos.y); 
         }
 
         for (auto& enemy : enemies) {
@@ -255,6 +258,7 @@ int main() {
         drawPlatform(window);
         // drawRungs(window, view, inTunnel);
         drawFallingPlatforms(window, view, inTunnel);
+        drawFinalPlatform(window); 
         drawEnemies(window, enemies); 
         player.draw(window);
 

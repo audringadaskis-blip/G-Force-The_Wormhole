@@ -13,8 +13,13 @@ bool isOverHole(float playerX) {
 
 // Update player vertical position (falling logic)
 float updateVerticalPosition(float playerY, bool& isFalling, bool& inTunnel, 
-                           bool overHole, float dt) {
-    // On platform
+                           bool overHole, float dt, bool& reachedFinalPlatform) {
+    
+    if (reachedFinalPlatform) {
+        return FINAL_PLATFORM_Y - PLAYER_SIZE;
+    }
+
+    // On top platform
     if (!inTunnel && !overHole && !isFalling) {
         return TERRAIN_Y - PLAYER_SIZE;
     }
@@ -28,6 +33,14 @@ float updateVerticalPosition(float playerY, bool& isFalling, bool& inTunnel,
     }
     else if (inTunnel) {
         playerY += FALL_SPEED * dt;
+        
+        if (playerY + PLAYER_SIZE >= FINAL_PLATFORM_Y) {
+            playerY = FINAL_PLATFORM_Y - PLAYER_SIZE; // Snap to surface
+            isFalling = false;
+            inTunnel = false;
+            reachedFinalPlatform = true;
+        }
+        
         return playerY;
     }
     return playerY;
@@ -63,7 +76,6 @@ void spawnWorm(std::vector<std::unique_ptr<Enemy>>& enemies, float playerY, floa
     
     constexpr float PLATFORM_SPACING = 220.f;
     constexpr float FIRST_PLATFORM_Y = PLATFORM_1_Y;  // 620.f
-    constexpr int MAX_LEVELS = 20;
 
     static int frameCounter = 0;
     frameCounter++;
@@ -128,7 +140,6 @@ void spawnBat(std::vector<std::unique_ptr<Enemy>>& enemies, float playerY) {
     
     constexpr float AIR_GAP_SPACING = 220.f;
     constexpr float FIRST_AIR_GAP_Y = 730.f;
-    constexpr int MAX_LEVELS = 20;
     
     static int frameCounter = 0;
     frameCounter++;

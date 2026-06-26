@@ -184,6 +184,26 @@ void drawRungs(sf::RenderWindow& window, const sf::View& view, bool inTunnel) {
     }
 }
 
+void drawFinalPlatform(sf::RenderWindow& window) {
+    static sf::Texture platformTexture;
+    static bool loaded = false;
+    if (!loaded) {
+        if (!platformTexture.loadFromFile("assets/dirt2.png")) {
+            std::cout << "Failed to load dirt2.png!\n";
+        }
+        platformTexture.setRepeated(true);
+        loaded = true;
+    }
+
+    sf::RectangleShape finalPlatform(sf::Vector2f(WINDOW_WIDTH, FINAL_PLATFORM_HEIGHT));
+    finalPlatform.setPosition(sf::Vector2f(0.f, FINAL_PLATFORM_Y));
+    finalPlatform.setTexture(&platformTexture);
+    
+    finalPlatform.setTextureRect(sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(WINDOW_WIDTH, FINAL_PLATFORM_HEIGHT)));
+    
+    window.draw(finalPlatform);
+}
+
 // Update camera view (smooth follow)
 void updateCamera(sf::View& view, const sf::Vector2f& playerPos, 
                   bool inTunnel, bool isFalling, float dt) {
