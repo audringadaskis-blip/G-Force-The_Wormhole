@@ -280,8 +280,8 @@ int main() {
 
         
         if (inTunnel) {
-            //spawnWorm(enemies, pos.y, TUNNEL_ENTRY_Y);
-            //spawnBat(enemies, pos.y); 
+            spawnWorm(enemies, pos.y, TUNNEL_ENTRY_Y);
+            spawnBat(enemies, pos.y); 
         }
 
         for (auto& enemy : enemies) {
