@@ -69,6 +69,7 @@ constexpr float RUNG_SPACING = 120.f;
 constexpr int MAX_LEVELS = 20;
 constexpr float PLATFORM_SPACING = 220.f;
 constexpr float FIRST_PLATFORM_Y = 620.f; 
+constexpr float LAST_PLATFORM_Y = TUNNEL_ENTRY_Y + 300.f + (MAX_LEVELS - 1) * PLATFORM_SPACING;
 constexpr float FINAL_PLATFORM_Y = FIRST_PLATFORM_Y + (MAX_LEVELS + 3) * PLATFORM_SPACING;  // the () part changes how far into nothing hte player will be falling
 constexpr float FINAL_PLATFORM_HEIGHT = 300.f;
 
@@ -76,8 +77,9 @@ constexpr float FINAL_PLATFORM_HEIGHT = 300.f;
 constexpr float TUNNEL_WALL_WIDTH = 100.f;
 constexpr float TUNNEL_LEFT_X = 0.f;
 constexpr float TUNNEL_RIGHT_X = 700.f;
-constexpr float TUNNEL_HEIGHT = 100000.f;
+constexpr float TUNNEL_HEIGHT = LAST_PLATFORM_Y - TERRAIN_Y + 20.f; 
 constexpr float TUNNEL_OFFSET = TERRAIN_Y;
+constexpr float SKY_START_Y = TERRAIN_Y + TUNNEL_HEIGHT; 
 
 // Colors
 constexpr sf::Color COLOR_BACKGROUND = sf::Color::Black;

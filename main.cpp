@@ -142,9 +142,12 @@ int main() {
     float caveScaleX = 600.f / 477.f;
     float caveScaleY = caveScaleX;
 
+    int caveTexHeight = static_cast<int>(TUNNEL_HEIGHT / caveScaleY);
+    caveSprite.setTextureRect(sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(477, caveTexHeight)));
+    
     caveSprite.setScale(sf::Vector2f(caveScaleX, caveScaleY));
     caveSprite.setPosition(sf::Vector2f(TUNNEL_LEFT_X + TUNNEL_WALL_WIDTH, TUNNEL_OFFSET));
-    
+
     // background for tunnel walls
 
     sf::Texture wallTexture;
@@ -154,8 +157,14 @@ int main() {
     sf::Sprite leftWallSprite(wallTexture);
     sf::Sprite rightWallSprite(wallTexture);
 
-    leftWallSprite.setTextureRect(sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(100, 100000)));
-    rightWallSprite.setTextureRect(sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(100, 100000)));
+    int wallHeight = static_cast<int>(TUNNEL_HEIGHT);
+
+    // Cave background
+    caveSprite.setTextureRect(sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(477, wallHeight)));
+
+    // Left and right walls
+    leftWallSprite.setTextureRect(sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(100, wallHeight)));
+    rightWallSprite.setTextureRect(sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(100, wallHeight)));
 
     float wallScaleX = 1.f;  // no scaling at all, 100px texture = 100px wall
     float wallScaleY = 1.f;
@@ -165,6 +174,55 @@ int main() {
 
     leftWallSprite.setPosition(sf::Vector2f(TUNNEL_LEFT_X, TUNNEL_OFFSET));
     rightWallSprite.setPosition(sf::Vector2f(TUNNEL_RIGHT_X, TUNNEL_OFFSET));
+
+    //sky background
+
+    sf::Texture skyTexture;
+    if (!skyTexture.loadFromFile("assets/falling.png")) { return -1; } // Make sure to use your actual file name!
+    
+    sf::Sprite skySprite(skyTexture);
+
+    float skyPixelHeight = FINAL_PLATFORM_Y - SKY_START_Y;
+    
+    float skyWidth = WINDOW_WIDTH; 
+
+    sf::Vector2u skySize = skyTexture.getSize();
+    float skyScaleX = skyWidth / skySize.x;
+    float skyScaleY = skyPixelHeight / skySize.y;
+
+    skySprite.setScale(sf::Vector2f(skyScaleX, skyScaleY));
+    
+    skySprite.setPosition(sf::Vector2f(0.f, SKY_START_Y));
+
+    //Beach background
+
+    sf::Texture bottomTexture1, bottomTexture2, bottomTexture3, bottomTexture4, bottomTexture5;
+    if (!bottomTexture1.loadFromFile("assets/ocean1.png")) { return -1; }
+    if (!bottomTexture2.loadFromFile("assets/ocean2.png")) { return -1; }
+    if (!bottomTexture3.loadFromFile("assets/ocean3.png")) { return -1; }
+    if (!bottomTexture4.loadFromFile("assets/ocean4.png")) { return -1; }
+    if (!bottomTexture5.loadFromFile("assets/ocean5.png")) { return -1; }
+
+    sf::Sprite bottomSprite1(bottomTexture1);
+    sf::Sprite bottomSprite2(bottomTexture2);
+    sf::Sprite bottomSprite3(bottomTexture3);
+    sf::Sprite bottomSprite4(bottomTexture4);
+    sf::Sprite bottomSprite5(bottomTexture5);
+
+    auto setupBottomSprite = [](sf::Sprite& sprite, const sf::Texture& tex, float yOffsetFromFinalPlatform) {
+        float scaleX = static_cast<float>(WINDOW_WIDTH) / tex.getSize().x;
+        float scaleY = scaleX;
+        sprite.setScale(sf::Vector2f(scaleX, scaleY));
+        
+        float spriteHeight = tex.getSize().y * scaleY;
+        sprite.setPosition(sf::Vector2f(0.f, FINAL_PLATFORM_Y - spriteHeight + yOffsetFromFinalPlatform));
+    };
+
+    setupBottomSprite(bottomSprite3, bottomTexture3, 0.f);
+    setupBottomSprite(bottomSprite4, bottomTexture4, 0.f);
+    setupBottomSprite(bottomSprite1, bottomTexture1, 0.f);
+    setupBottomSprite(bottomSprite2, bottomTexture2, 0.f);
+    setupBottomSprite(bottomSprite5, bottomTexture5, 0.f);
 
     generateFallingPlatforms(20);
     
@@ -254,6 +312,14 @@ int main() {
         window.draw(caveSprite);
         window.draw(leftWallSprite);
         window.draw(rightWallSprite);
+
+        window.draw(skySprite); 
+
+        window.draw(bottomSprite3);
+        window.draw(bottomSprite4); 
+        window.draw(bottomSprite1);
+        window.draw(bottomSprite2);
+        window.draw(bottomSprite5);
 
         drawPlatform(window);
         // drawRungs(window, view, inTunnel);
